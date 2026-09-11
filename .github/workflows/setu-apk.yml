@@ -4,12 +4,16 @@
 # native-checksum script. All useful, all slow, and any one of them failing blocks the
 # artifact you actually want. This job just builds and uploads.
 #
+# Two failure modes this file defends against, both caused by the repo having been
+# created on Windows (no exec bit, and git's CRLF handling):
+#   * exit 126 from ./gradlew  -> the file is not executable
+#   * exit 126 with a bad interpreter -> the file has CRLF line endings
+# Both are fixed in-place at the start of the job, so CI works no matter what mode or
+# line endings git has stored.
+#
 # No explicit SDK install step: the Android Gradle Plugin downloads the missing platform
 # and build-tools itself, and gradle.properties does not disable that. An earlier version
 # of this file hardcoded the sdkmanager path and died before Gradle ever started.
-#
-# Run it from the Actions tab: "Build Setu APK" -> Run workflow. The APK lands in the
-# run's Artifacts section as setu-debug-apk.zip.
 
 name: Build Setu APK
 
@@ -40,13 +44,36 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Never allowed to fail the job: if sdkmanager is not on PATH the plugin
-      # handles licences itself during the build.
+      - name: Repair the wrapper script
+        run: |
+          # Strip CRLF first: a \r on the shebang line makes the kernel look for an
+          # interpreter that does not exist, which surfaces as the same exit 126 as a
+          # missing exec bit.
+          sed -i 's/\r$//' gradlew
+          chmod +x gradlew
+          find tools -name '*.sh' -exec sed -i 's/\r$//' {} + -exec chmod +x {} + || true
+
+      - name: Diagnostics
+        run: |
+          echo "--- java ---"
+          java -version
+          echo "--- sdk ---"
+          echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-unset}"
+          echo "--- wrapper ---"
+          ls -l gradlew
+          file gradlew
+          head -1 gradlew | cat -A | head -1
+
+      # Never allowed to fail the job: if sdkmanager is not on PATH, the Android Gradle
+      # Plugin accepts licences itself during the build.
       - name: Accept SDK licences
         run: yes | sdkmanager --licenses > /dev/null 2>&1 || true
 
+      # :app: rather than the root task, so the wear module is not built. It is not
+      # needed for the phone APK and it is one more thing that can fail.
       - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

@@ -1,0 +1,45 @@
+Setu — bitchat, reskinned as a messenger.
+
+This folder is the full, already-patched Android project. Nothing to apply,
+nothing to download. The reskin is baked in.
+
+WHAT TO DO
+----------
+
+Fastest (needs only git, GitHub compiles it for you):
+  1. Make an EMPTY repo on GitHub, copy its URL.
+  2. Run PUSH-TO-GITHUB.bat here, paste the URL.
+  3. On GitHub: Actions tab -> "Build Setu APK" -> Run workflow.
+     (The push usually starts it on its own.)
+  4. 6-10 minutes. Open the run, scroll to Artifacts,
+     download setu-debug-apk.zip. The APK is inside.
+
+If you have Android Studio already:
+  Open this folder, let it sync,
+  Build -> Build Bundle(s) / APK(s) -> Build APK(s).
+  Output: app\build\outputs\apk\debug\app-debug.apk
+
+If you have the command-line SDK (JDK 21 + ANDROID_HOME set):
+  gradlew.bat assembleDebug
+
+ON THE PHONES
+-------------
+  Install on two phones, allow "install from unknown sources".
+  Grant Bluetooth and Location on both (Android requires the location
+  permission for BLE scanning; the app does not use your position for it).
+  Set a nickname on each.
+
+  Then turn wifi AND mobile data OFF on both. They still find each other
+  and message. That is the whole point.
+
+  Groups: type  /j #relief  on both phones. Same channel, same group.
+  Geohash rooms (block / neighbourhood / city / region) are in the
+  location channel sheet. Multiple meshes run at once already.
+
+INTEROP
+-------
+  Protocol is untouched, so Setu talks to stock bitchat peers built from
+  the same era of the codebase. Only the look, the name and the package
+  id changed.
+
+Full detail is in SETU_README.md, one folder up.

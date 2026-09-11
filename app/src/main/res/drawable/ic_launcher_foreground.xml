@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Setu launcher glyph: a speech bubble whose contents are three linked mesh nodes.
+  Drawn inside the adaptive-icon safe zone (the centre 72dp of the 108dp viewport)
+  so no part of it is clipped by a circular, squircle or rounded-square mask.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Bubble body -->
+    <path
+        android:pathData="M36,26h36a12,12 0 0 1 12,12v22a12,12 0 0 1 -12,12h-36a12,12 0 0 1 -12,-12v-22a12,12 0 0 1 12,-12z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Tail -->
+    <path
+        android:pathData="M34,68L34,86L52,70z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Mesh links -->
+    <path
+        android:pathData="M41,44L54,55L68,40"
+        android:strokeColor="#12A150"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Mesh nodes -->
+    <path
+        android:pathData="M41,39.5a4.5,4.5 0 1 1 0,9a4.5,4.5 0 1 1 0,-9z"
+        android:fillColor="#12A150" />
+    <path
+        android:pathData="M54,50.5a4.5,4.5 0 1 1 0,9a4.5,4.5 0 1 1 0,-9z"
+        android:fillColor="#12A150" />
+    <path
+        android:pathData="M68,35.5a4.5,4.5 0 1 1 0,9a4.5,4.5 0 1 1 0,-9z"
+        android:fillColor="#12A150" />
+</vector>

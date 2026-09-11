@@ -4,6 +4,10 @@
 # native-checksum script. All useful, all slow, and any one of them failing blocks the
 # artifact you actually want. This job just builds and uploads.
 #
+# No explicit SDK install step: the Android Gradle Plugin downloads the missing platform
+# and build-tools itself, and gradle.properties does not disable that. An earlier version
+# of this file hardcoded the sdkmanager path and died before Gradle ever started.
+#
 # Run it from the Actions tab: "Build Setu APK" -> Run workflow. The APK lands in the
 # run's Artifacts section as setu-debug-apk.zip.
 
@@ -25,10 +29,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "21"
@@ -36,13 +40,10 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Install SDK platform 37
-        run: |
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
-            "platforms;android-37" \
-            "build-tools;37.0.0" \
-            "platform-tools"
+      # Never allowed to fail the job: if sdkmanager is not on PATH the plugin
+      # handles licences itself during the build.
+      - name: Accept SDK licences
+        run: yes | sdkmanager --licenses > /dev/null 2>&1 || true
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --no-daemon --stacktrace
@@ -54,11 +55,10 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
-      - name: Upload build report on failure
+      - name: Upload build reports on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: setu-build-reports
-          path: |
-            **/build/reports/
+          path: "**/build/reports/"
           if-no-files-found: ignore
